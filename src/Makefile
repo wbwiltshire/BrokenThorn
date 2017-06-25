@@ -42,4 +42,5 @@ clean:
 	rm -f $(OBJECTS)
 	rm -f *.o
 	rm -f *.iso
+	rm -f *.log
 
