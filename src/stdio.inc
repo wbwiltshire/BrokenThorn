@@ -31,11 +31,11 @@ Puts16:
 		or	al, al			; Does AL=0?
 		jz	Puts16Done		; Yep, null terminator found-bail out
 		mov	ah, 0eh			; Nope-Print the character
-		int	10h			; invoke BIOS
+		int	10h			    ; invoke BIOS
 		jmp	.Loop1			; Repeat until null terminator found
 Puts16Done:
 		popa				; restore registers
-		ret				; we are done, so return
+		ret				    ; we are done, so return
 
 
 ;==========================================================
@@ -45,12 +45,12 @@ Puts16Done:
 
 bits 32
 
-%define		VIDMEM	0xB8000			; video memory
+%define		VIDMEM	0xB8000		; video memory
 %define		COLS	80			; width and height of screen
 %define		LINES	25
-%define		CHAR_ATTRIB 63			; character attribute (White text on light blue background)
+%define		CHAR_ATTRIB 63		; character attribute (White text on light blue background)
 
-_CurX db 0					; current x/y location
+_CurX db 0					    ; current x/y location
 _CurY db 0
 
 ;**************************************************;
@@ -70,37 +70,37 @@ Putch32:
 
 	xor	eax, eax		; clear eax
 
-		;--------------------------------
-		; Remember: currentPos = x + y * COLS! x and y are in _CurX and _CurY.
-		; Because there are two bytes per character, COLS=number of characters in a line.
-		; We have to multiply this by 2 to get number of bytes per line. This is the screen width,
-		; so multiply screen with * _CurY to get current line
-		;--------------------------------
+	;--------------------------------
+	; Remember: currentPos = x + y * COLS! x and y are in _CurX and _CurY.
+	; Because there are two bytes per character, COLS=number of characters in a line.
+	; We have to multiply this by 2 to get number of bytes per line. This is the screen width,
+	; so multiply screen with * _CurY to get current line
+	;--------------------------------
 
-		mov	ecx, COLS*2		; Mode 7 has 2 bytes per char, so its COLS*2 bytes per line
-		mov	al, byte [_CurY]	; get y pos
-		mul	ecx			; multiply y*COLS
-		push	eax			; save eax--the multiplication
+	mov	ecx, COLS*2		; Mode 7 has 2 bytes per char, so its COLS*2 bytes per line
+	mov	al, byte [_CurY]	; get y pos
+	mul	ecx			; multiply y*COLS
+	push	eax			; save eax--the multiplication
 
-		;--------------------------------
-		; Now y * screen width is in eax. Now, just add _CurX. But, again remember that _CurX is relative
-		; to the current character count, not byte count. Because there are two bytes per character, we
-		; have to multiply _CurX by 2 first, then add it to our screen width * y.
-		;--------------------------------
+	;--------------------------------
+	; Now y * screen width is in eax. Now, just add _CurX. But, again remember that _CurX is relative
+	; to the current character count, not byte count. Because there are two bytes per character, we
+	; have to multiply _CurX by 2 first, then add it to our screen width * y.
+	;--------------------------------
 
-		mov	al, byte [_CurX]	; multiply _CurX by 2 because it is 2 bytes per char
-		mov	cl, 2
-		mul	cl
-		pop	ecx			; pop y*COLS result
-		add	eax, ecx
+	mov	al, byte [_CurX]	; multiply _CurX by 2 because it is 2 bytes per char
+	mov	cl, 2
+	mul	cl
+	pop	ecx			; pop y*COLS result
+	add	eax, ecx
 
-		;-------------------------------
-		; Now eax contains the offset address to draw the character at, so just add it to the base address
-		; of video memory (Stored in edi)
-		;-------------------------------
+	;-------------------------------
+	; Now eax contains the offset address to draw the character at, so just add it to the base address
+	; of video memory (Stored in edi)
+	;-------------------------------
 
-		xor	ecx, ecx
-		add	edi, eax		; add it to the base address
+	xor	ecx, ecx
+	add	edi, eax		; add it to the base address
 
 	;-------------------------------;
 	;   Watch for new line          ;
@@ -291,8 +291,5 @@ GotoXY:
 	mov	[_CurY], ah
 	popa
 	ret
-
-
-
 
 %endif ;__STDIO_INC_67343546FDCC56AAB872_INCLUDED__

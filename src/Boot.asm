@@ -6,11 +6,9 @@
 ;	Operating Systems Development Tutorial
 ;*********************************************
 
-bits	16						; we are in 16 bit real mode
-
-org		0					; we will set regisers later
-
-start:	jmp	main					; jump to start of bootloader
+bits	16					; we are in 16 bit real mode
+org		0					; we will set origin in linker
+start:	jmp	main			; jump to start of bootloader
 
 ;*********************************************
 ;	BIOS Parameter Block
@@ -19,21 +17,21 @@ start:	jmp	main					; jump to start of bootloader
 ; BPB Begins 3 bytes from start. We do a far jump, which is 3 bytes in size.
 ; If you use a short jump, add a "nop" after it to offset the 3rd byte.
 
-bpbOEM			db "My OS   "
+bpbOEM			        DB "My OS   "
 bpbBytesPerSector:  	DW 512
 bpbSectorsPerCluster: 	DB 1
 bpbReservedSectors: 	DW 1
-bpbNumberOfFATs: 	DB 2
-bpbRootEntries: 	DW 224
-bpbTotalSectors: 	DW 2880
-bpbMedia: 		DB 0xf0  ;; 0xF1
-bpbSectorsPerFAT: 	DW 9
+bpbNumberOfFATs: 	    DB 2
+bpbRootEntries: 	    DW 224
+bpbTotalSectors: 	    DW 2880
+bpbMedia: 		        DB 0xf0  ;; 0xF1
+bpbSectorsPerFAT: 	    DW 9
 bpbSectorsPerTrack: 	DW 18
 bpbHeadsPerCylinder: 	DW 2
-bpbHiddenSectors: 	DD 0
+bpbHiddenSectors: 	    DD 0
 bpbTotalSectorsBig:     DD 0
 bsDriveNumber: 	        DB 0
-bsUnused: 		DB 0
+bsUnused: 		        DB 0
 bsExtBootSignature: 	DB 0x29
 bsSerialNumber:	        DD 0xa0a1a2a3
 bsVolumeLabel: 	        DB "MOS FLOPPY "
@@ -101,9 +99,8 @@ LBACHS:
 ;************************************************;
 
 ReadSectors:
-     .MAIN
           mov     di, 0x0005                          ; five retries for error
-     .SECTORLOOP
+SectorLoop:
           push    ax
           push    bx
           push    cx
@@ -115,16 +112,16 @@ ReadSectors:
           mov     dh, BYTE [absoluteHead]             ; head
           mov     dl, BYTE [bsDriveNumber]            ; drive
           int     0x13                                ; invoke BIOS
-          jnc     .SUCCESS                            ; test for read error
+          jnc     Success                             ; test for read error
           xor     ax, ax                              ; BIOS reset disk
           int     0x13                                ; invoke BIOS
           dec     di                                  ; decrement error counter
           pop     cx
           pop     bx
           pop     ax
-          jnz     .SECTORLOOP                         ; attempt to read again
+          jnz     SectorLoop                          ; attempt to read again
           int     0x18
-     .SUCCESS
+Success:
           mov     si, msgProgress
           call    Print
           pop     cx
@@ -132,7 +129,7 @@ ReadSectors:
           pop     ax
           add     bx, WORD [bpbBytesPerSector]        ; queue next buffer
           inc     ax                                  ; queue next sector
-          loop    .MAIN                               ; read next sector
+          loop    ReadSectors                         ; read next sector
           ret
 
 

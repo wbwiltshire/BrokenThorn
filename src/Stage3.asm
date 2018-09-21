@@ -6,10 +6,8 @@
 ;
 ;	OS Development Series
 ;*******************************************************
-
-org	0x100000			; Kernel starts at 1 MB
-
 bits	32				; 32 bit code
+org	0x100000			; Kernel starts at 1 MB
 
 jmp	Stage3				; jump to entry point
 
@@ -34,9 +32,9 @@ Stage3:
 	;   Clear screen and print success	;
 	;---------------------------------------;
 
-	call	ClrScr32
-	mov	ebx, msg
-	call	Puts32
+	call ClrScr32
+	mov	 ebx, msg
+	call Puts32
 
 	;---------------------------------------;
 	;   Stop execution			;
